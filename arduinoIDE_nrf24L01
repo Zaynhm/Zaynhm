@@ -1,3 +1,53 @@
+TX CODE  transmitter
+////////////////////////////////////////////////////
+#include <SPI.h>  
+#include <RF24.h>
+RF24 myRadio (7, 8); //CE ,CSN
+struct package
+{
+  int msg = 0;
+};
+byte addresses[][6] = {"0"};
+typedef struct package Package;
+Package data;
+void setup()
+{
+  Serial.begin(9600);
+  myRadio.begin();  
+  myRadio.setChannel(115);  //115 band above WIFI signals
+  myRadio.setPALevel(RF24_PA_MIN); //MIN power low rage
+  myRadio.setDataRate( RF24_250KBPS ) ;  //Minimum speed
+  delay(500);
+  Serial.print("Setup Initialized");
+}
+void loop()
+{
+int value= 505 ; // set wha ever u want to send and store in in 'data.msg'
+    data.msg = value;
+    WriteData();
+    delay(100);
+}
+
+//////////////////////////////////
+void WriteData()
+{
+  myRadio.stopListening();  //Stop Receiving and start transminitng 
+  myRadio.openWritingPipe( 0xF0F0F0F066); //Sends data on this 40-bit address
+  myRadio.write(&data, sizeof(data)); 
+  Serial.print("\nSent:");
+  Serial.println(data.msg);
+  delay(300);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RX CODE :      reciver
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include <SPI.h>  
 #include "RF24.h" 
 RF24 myRadio (7, 8); /CE,CSN
@@ -25,16 +75,16 @@ void loop()
   delay(50);
  value1 = data.msg; 
 
-  ReadDataAC2();
+  ReadData();
   delay(50);
  value1 = data.msg; 
  
 }
 ////////////////////////////////////////////////////
-void ReadDataAC1()
+void ReadData()
 {
   myRadio.openReadingPipe(1, 0xF0F0F0F066); 
-  myRadio.startListening();g 
+  myRadio.startListening();
   if ( myRadio.available()) 
   {
     while (myRadio.available())
@@ -45,18 +95,5 @@ void ReadDataAC1()
     Serial.println(data.msg);
   }
 }
-/////////////////////////////////////////////////////
-void ReadDataAC2()
-{
-  myRadio.openReadingPipe(1, 0xF0F0F0F077); 
-  myRadio.startListening(); 
-  if ( myRadio.available()) 
-  {
-    while (myRadio.available())
-    {
-      myRadio.read( &data, sizeof(data) );
-    }
-    Serial.print("\n 2 Received:");
-    Serial.println(data.msg);
-  }
+
 }
