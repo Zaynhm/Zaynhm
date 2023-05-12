@@ -1,0 +1,62 @@
+#include <SPI.h>  
+#include "RF24.h" 
+RF24 myRadio (7, 8); /CE,CSN
+struct package
+{
+  int msg;
+};
+typedef struct package Package;
+Package data;
+byte addresses[][6] = {"0"}; 
+void setup() 
+{
+  Serial.begin(9600);
+  myRadio.begin(); 
+  myRadio.setChannel(115);  //115 band above WIFI signals
+  myRadio.setPALevel(RF24_PA_MIN); //MIN power low rage
+  myRadio.setDataRate( RF24_250KBPS ) ;  //Minimum speed
+  Serial.print("Setup Initialized");
+  delay(500);
+}
+int value1,value2;
+void loop()  
+{
+  ReadDataAC1(); // reading the recived value and store it in the variable'data.msg'
+  delay(50);
+ value1 = data.msg; 
+
+  ReadDataAC2();
+  delay(50);
+ value1 = data.msg; 
+ 
+}
+////////////////////////////////////////////////////
+void ReadDataAC1()
+{
+  myRadio.openReadingPipe(1, 0xF0F0F0F066); 
+  myRadio.startListening();g 
+  if ( myRadio.available()) 
+  {
+    while (myRadio.available())
+    {
+      myRadio.read( &data, sizeof(data) );
+    }
+    Serial.print("\n 1 Received:");
+    Serial.println(data.msg);
+  }
+}
+/////////////////////////////////////////////////////
+void ReadDataAC2()
+{
+  myRadio.openReadingPipe(1, 0xF0F0F0F077); 
+  myRadio.startListening(); 
+  if ( myRadio.available()) 
+  {
+    while (myRadio.available())
+    {
+      myRadio.read( &data, sizeof(data) );
+    }
+    Serial.print("\n 2 Received:");
+    Serial.println(data.msg);
+  }
+}
