@@ -78,11 +78,8 @@ void setup()
 int value1,value2;
 void loop()  
 {
-  ReadDataAC1(); // reading the recived value and store it in the variable'data.msg'
-  delay(50);
- value1 = data.msg; 
-
   ReadData();
+
   delay(50);
  value1 = data.msg; 
  
